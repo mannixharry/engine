@@ -1,27 +1,22 @@
-#include <fstream>
-#include <iostream>
+#include "vec3.h"
+#include "mat4.h"
+#include "vec4.h"
+#include "debug.h"
 
 int main() {
-    const int width = 256; 
-    const int height = 256; 
 
-    std::ofstream out("output.ppm");
-    out << "P3\n" << width << ' ' << height << "\n255\n";
-    
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            float r = float(x) / (width - 1);
-            float g = float(y) / (height - 1);
-            float b = 0.25f;
+    Mat4 T = Mat4::translation(Vec3(1, 2, 3));
+    Mat4 R = Mat4::rotation_z(3.14159265f / 2.0f);
 
-            int ir = int(255.99f * r);
-            int ig = int(255.999f * g);
-            int ib = int(255.999f * b);
-            
-            out << ir << ' ' << ig << ' ' << ib << '\n';
-        }
-    }
+    Vec4 p(0, 0, 0, 1);   // point
+    Vec4 d(0, 0, 1, 0);   // direction
 
-    std:: cout << "Wrote output.ppm\n";
+    print(Mat4() * T);        // == T
+    print(T * p);             // (1, 2, 3, 1)
+    print(T * d);             // (0, 0, 1, 0) — unchanged
+    print(R * Vec4(1,0,0,1)); // ~(0, 1, 0, 1)
+    print(T * R * p);         // differs from R * T * p
+    print(R * Mat4::rotation_z(-3.14159265f / 2.0f));  // identity
+        
     return 0;
 }
