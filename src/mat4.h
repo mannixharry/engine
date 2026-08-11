@@ -10,6 +10,10 @@
 struct Mat4 {
     float m[4][4];
 
+    static Mat4 zero() {
+        return Mat4{}; // Zero initialises
+    }
+
     static Mat4 identity() {
         return Mat4{{{1, 0, 0, 0},
                      {0, 1, 0, 0},
@@ -77,12 +81,25 @@ struct Mat4 {
         return v;
     }
 
-    
+    static Mat4 perspective(float fovy_radians, float aspect, float near_plane, float far_plane) {
+        Mat4 p = Mat4::zero();
+        float t = std::tan(fovy_radians / 2.0f);
+
+        p.m[0][0] = 1.0f / (t * aspect);
+        p.m[1][1] = 1.0f / t;
+
+        p.m[2][2] = -(far_plane + near_plane) / (far_plane - near_plane);
+        p.m[2][3] = -(2.0f * far_plane * near_plane) / (far_plane - near_plane);
+
+        p.m[3][2] = -1.0f;
+
+        return p;
+    }
 };
 
 // Future: unroll to optimize
 inline Mat4 operator*(const Mat4& a, const Mat4& b) {
-    Mat4 c;
+    Mat4 c = Mat4::zero();
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             float sum = 0.0f;

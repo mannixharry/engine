@@ -11,7 +11,7 @@ int main() {
     Vec4 p(0, 0, 0, 1);   // point
     Vec4 d(0, 0, 1, 0);   // direction
 
-    print(Mat4() * T);        // == T
+    print(Mat4::identity() * T);        // == T
     print(T * p);             // (1, 2, 3, 1)
     print(T * d);             // (0, 0, 1, 0) — unchanged
     print(R * Vec4(1,0,0,1)); // ~(0, 1, 0, 1)
