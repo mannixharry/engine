@@ -7,6 +7,10 @@ struct Vec3 {
     Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
 };
 
+inline Vec3 operator-(const Vec3& a) {
+    return Vec3(-a.x, -a.y, -a.z);
+}
+
 inline Vec3 operator+(const Vec3& a, const Vec3& b) {
     return Vec3(a.x + b.x, a.y + b.y, a.z + b.z);
 }
@@ -37,4 +41,10 @@ inline Vec3 cross(const Vec3& a, const Vec3& b) {
 // Euclidean distance
 inline float length(const Vec3& a) {
     return std::sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+}
+
+// Unit vector
+inline Vec3 normalise(const Vec3& a) {
+    // Future: Protect against divide by 0
+    return a * (1.0 / length(a));
 }
