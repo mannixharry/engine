@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <cassert> 
 
 struct Vec3 {
     float x, y, z;
@@ -45,6 +46,7 @@ inline float length(const Vec3& a) {
 
 // Unit vector
 inline Vec3 normalise(const Vec3& a) {
-    // Future: Protect against divide by 0
-    return a * (1.0 / length(a));
+    float len = length(a);
+    assert(len > 1e-6f);
+    return a * (1.0f / len);
 }

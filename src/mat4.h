@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <cassert>
 #include "vec3.h"
 #include "vec4.h"
 
@@ -65,23 +66,33 @@ struct Mat4 {
     }
 
     static Mat4 look_at(const Vec3& eye, const Vec3& target, const Vec3& up_hint) {
+        assert(length(target - eye) > 1e-6f && "eye and target must not coincide");
+        assert(length(up_hint) > 1e-6f && "up_hint must not be the zero vector");
+
         // Orthonormal basis of camera space
         // Future: fix issues arising when f and up_hint are (nearly) parallel
         Vec3 f = normalise(target - eye);
+        assert(length(cross(f, up_hint)) > 1e-6f && "up_hint must not be parallel to the view direction");
         Vec3 r = normalise(cross(f, up_hint));
         Vec3 u = cross(r, f);
 
         Mat4 v = Mat4::identity();
 
-        v.m[0][0] =  r.x;  v.m[0][1] =  r.y;  v.m[0][2] =  r.z;  v.m[0][3] = -dot(r, eye);
-        v.m[1][0] =  u.x;  v.m[1][1] =  u.y;  v.m[1][2] =  u.z;  v.m[1][3] = -dot(u, eye);
-        v.m[2][0] = -f.x;  v.m[2][1] = -f.y;  v.m[2][2] = -f.z;  v.m[2][3] =  dot(f, eye);
+        v.m[0][0] =  r.x; v.m[0][1] =  r.y; v.m[0][2] =  r.z; v.m[0][3] = -dot(r, eye);
+        v.m[1][0] =  u.x; v.m[1][1] =  u.y; v.m[1][2] =  u.z; v.m[1][3] = -dot(u, eye);
+        v.m[2][0] = -f.x; v.m[2][1] = -f.y; v.m[2][2] = -f.z; v.m[2][3] =  dot(f, eye);
         // Bottom row (0, 0, 0, 1)
 
         return v;
     }
 
     static Mat4 perspective(float fovy_radians, float aspect, float near_plane, float far_plane) {
+
+        assert(near_plane > 0.0f);
+        assert(far_plane > near_plane);
+        assert(aspect > 0.0f);
+        assert(fovy_radians > 0.0f && fovy_radians < 3.14159f);
+        
         Mat4 p = Mat4::zero();
         float t = std::tan(fovy_radians / 2.0f);
 
