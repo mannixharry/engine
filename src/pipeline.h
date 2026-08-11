@@ -23,3 +23,8 @@ inline ScreenPoint clip_to_screen(const Vec4& clip, int width, int height) {
 
     return p;
 }
+
+inline ScreenPoint project_vertex(const Mat4& mvp, const Vec3& p, int width, int height) {
+    Vec4 clip = mvp * Vec4(p, 1.0f);
+    return clip_to_screen(clip, width, height);
+}
