@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include "framebuffer.h"
 #include "pipeline.h"
@@ -13,10 +13,11 @@ inline void draw_line(FrameBuffer& fb, const ScreenPoint& a, const ScreenPoint& 
 
     if (steps == 0) {
         set_pixel(fb, std::lround(a.x), std::lround(a.y), c);
-    } // Edge case for single points
+        return; // Edge case for single points
+    }
 
     float x_inc = dx / steps;
-    float y_inc = dy / steps; 
+    float y_inc = dy / steps;
 
     for (int i = 0; i <= steps; i++) {
         set_pixel(fb, std::lround(a.x + i * x_inc), std::lround(a.y + i * y_inc), c);

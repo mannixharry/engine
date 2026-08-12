@@ -92,7 +92,7 @@ struct Mat4 {
         assert(far_plane > near_plane);
         assert(aspect > 0.0f);
         assert(fovy_radians > 0.0f && fovy_radians < 3.14159f);
-        
+
         Mat4 p = Mat4::zero();
         float t = std::tan(fovy_radians / 2.0f);
 
