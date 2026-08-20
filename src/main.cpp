@@ -11,18 +11,18 @@
 #include "camera.h"
 #include <optional>
 #include <iostream> 
-
+#include <cmath>
 
 int main() {
 
     const int width  = 800;
     const int height = 600;
-    float aspect  = static_cast<float>(width) / height;
 
     Window window("engine", width, height);
     if (!window.ok()) {
         return 1;
     }
+    window.set_mouse_capture(true); // hides cursor, gives unbounded deltas
 
     auto m = load_obj(std::string(PROJECT_ROOT) + "/assets/cube.obj");
     if (!m) {
@@ -30,29 +30,60 @@ int main() {
         return 1;
     }
 
-    Camera c({0.0f, 0.0f, 10.0f});
+    Camera cam({0.0f, 0.0f, 10.0f});
     FrameBuffer fb(width, height);
 
+    Uint64 last_ns = SDL_GetTicksNS();
+
     bool running = true; 
-    float angle_x = 0;
+    float angle_x = 0.0f;
 
     while (running) {
+        const Uint64 now_ns = SDL_GetTicksNS();
+        const float dt = std::min(static_cast<float>((now_ns - last_ns) * 1e-9f), 0.05f);
+        // Avoids time accumulation when debugging code
+    
+        last_ns = now_ns; 
+
+        float mouse_dx = 0.0f;
+        float mouse_dy = 0.0f; 
+
         SDL_Event e; 
         while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_EVENT_QUIT) {
-                running = false;
-            }
-            if (e.type == SDL_EVENT_KEY_DOWN && e.key.key == SDLK_ESCAPE) {
-                running = false;
+
+            if (e.type == SDL_EVENT_QUIT) { running = false; }
+            if (e.type == SDL_EVENT_KEY_DOWN && e.key.key == SDLK_ESCAPE) { running = false; }
+            if (e.type == SDL_EVENT_MOUSE_MOTION) {
+                mouse_dx += e.motion.xrel;
+                mouse_dy += e.motion.yrel; 
             }
         }
 
-        Mat4 M = Mat4::rotation_x(angle_x);
-        angle_x += kTwoPi / 1000.0f;
-        angle_x = std::remainder(angle_x, kTwoPi);
+        constexpr float kSensitivity = 0.0025f; // radians per pixel
+        cam.rotate(-kSensitivity * mouse_dx, -kSensitivity * mouse_dy);
 
-        Mat4 V = c.view();
-        Mat4 P = c.projection(aspect);
+        Vec3 dir{0.0f, 0.0f, 0.0f};
+        const bool* keys = SDL_GetKeyboardState(nullptr);
+        if (keys[SDL_SCANCODE_W])     { dir.z += 1.0f; }
+        if (keys[SDL_SCANCODE_S])     { dir.z -= 1.0f; }
+        if (keys[SDL_SCANCODE_D])     { dir.x += 1.0f; }
+        if (keys[SDL_SCANCODE_A])     { dir.x -= 1.0f; }
+        if (keys[SDL_SCANCODE_SPACE]) { dir.y += 1.0f; }
+        if (keys[SDL_SCANCODE_LCTRL]) { dir.y -= 1.0f; }
+
+        if(length(dir) > 0.0f) {
+            constexpr float kSpeed = 5.0f; // World units per second
+            cam.move(normalise(dir) * (kSpeed * dt)); 
+        }
+
+        const float aspect  = static_cast<float>(width) / height;
+
+        Mat4 M = Mat4::rotation_x(angle_x);
+        //constexpr float kSpin = kTwoPi / 8.0f;   // one revolution per 8 seconds
+        //angle_x = std::remainder(angle_x + kSpin * dt, kTwoPi);
+
+        Mat4 V = cam.view();
+        Mat4 P = cam.projection(aspect);
 
         Mat4 MVP = P * V * M;
 
@@ -64,7 +95,7 @@ int main() {
             points[i] = project_vertex(MVP, m->positions[i], width, height);
         }
 
-        clear(fb);
+        clear(fb, Colour{0,0,0});
 
         for (int i = 0; i < index_count; i+=3) {
             ScreenPoint a = points[m->indices[i + 0]];

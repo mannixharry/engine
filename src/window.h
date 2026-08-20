@@ -55,6 +55,10 @@ class Window {
             SDL_RenderPresent(renderer_);
         }
 
+        void set_mouse_capture(bool capture) {
+            SDL_SetWindowRelativeMouseMode(window_, capture);
+        }
+
     private:
 
         SDL_Window* window_     = nullptr;
