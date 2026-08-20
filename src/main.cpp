@@ -9,10 +9,9 @@
 #include <optional>
 #include <iostream> 
 
-
 int main() {
 
-    auto m = load_obj("assets/cube.obj");
+    auto m = load_obj(std::string(PROJECT_ROOT) + "/assets/cube.obj");
     if (!m) {
         std::cerr << "Failed to load cube.obj\n";
         return 1;
