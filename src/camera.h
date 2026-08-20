@@ -15,7 +15,9 @@ struct CameraBasis {
 struct Camera {
     
     Vec3 position{0.0f, 0.0f, 0.0f};
-    
+    Camera(Vec3 position) : position(position) {};
+    Camera() : position(Vec3()) {};
+
     float fovy = kPi / 3.0f; 
     float near_pl = 0.1f;
     float far_pl = 100.0f;

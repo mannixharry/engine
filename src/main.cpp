@@ -8,6 +8,7 @@
 #include "obj_loader.h"
 #include "window.h"
 #include "constants.h"
+#include "camera.h"
 #include <optional>
 #include <iostream> 
 
@@ -16,6 +17,7 @@ int main() {
 
     const int width  = 800;
     const int height = 600;
+    float aspect  = static_cast<float>(width) / height;
 
     Window window("engine", width, height);
     if (!window.ok()) {
@@ -28,15 +30,7 @@ int main() {
         return 1;
     }
 
-    Vec3 eye(5, 0, 10);
-    Vec3 up_hint(0, 1, 0);
-    Vec3 target(0, 0, 0);
-
-    float fovy    = radians(60.0f);
-    float aspect  = static_cast<float>(width) / height;
-    float near_pl = 0.1f;
-    float far_pl  = 100.0f;
-
+    Camera c({0.0f, 0.0f, 10.0f});
     FrameBuffer fb(width, height);
 
     bool running = true; 
@@ -53,13 +47,12 @@ int main() {
             }
         }
 
-        //Mat4 M = Mat4::identity();
         Mat4 M = Mat4::rotation_x(angle_x);
         angle_x += kTwoPi / 1000.0f;
         angle_x = std::remainder(angle_x, kTwoPi);
 
-        Mat4 V = Mat4::look_at(eye, target, up_hint);
-        Mat4 P = Mat4::perspective(fovy, aspect, near_pl, far_pl);
+        Mat4 V = c.view();
+        Mat4 P = c.projection(aspect);
 
         Mat4 MVP = P * V * M;
 
