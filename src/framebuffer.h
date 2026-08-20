@@ -8,6 +8,10 @@ struct Colour {
     uint8_t r, g, b;
 };
 
+static_assert(sizeof(Colour) == 3, "Colour struct must not be padded");
+// SDL_UpdateTexture takes void* (and assumes 3 bytes).
+// Compiler padding Colour would break this contract.
+
 struct FrameBuffer {
     int width, height;
     std::vector<uint8_t> pixels;
