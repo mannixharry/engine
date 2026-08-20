@@ -4,8 +4,8 @@
 
 struct Vec3 {
     float x, y, z;
-    Vec3() : x(0), y(0), z(0) {}
-    Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
+    constexpr Vec3() : x(0), y(0), z(0) {}
+    constexpr Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
 };
 
 inline Vec3 operator-(const Vec3& a) {
